@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EMI & Loan Calculator</title>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            text-align: center;
+            margin: 0;
+            background: linear-gradient(to right, #4facfe, #00f2fe);
+            color: white;
+        }
+        .container {
+            max-width: 450px;
+            margin: 50px auto;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.2);
+            background-color: #ffffff;
+            color: black;
+        }
+        input, select, button {
+            width: 90%;
+            padding: 12px;
+            margin: 10px 0;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+        }
+        button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        button:hover {
+            background-color: #ff4757;
+        }
+        #result {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>EMI & LOAN CALCULATOR</h2>
+        <p>Calculate your monthly EMI, total interest payable, and total payment.</p>
+        
+        <label>Loan Amount (₹):</label>
+        <input type="number" id="loanAmount" placeholder="Enter loan amount" required>
+        
+        <label>Do you want to make an Initial Payment?</label>
+        <select id="initialPaymentOption" onchange="toggleInitialPayment()">
+            <option value="no">No</option>
+            <option value="yes">Yes</option>
+        </select>
+        
+        <div id="initialPaymentDiv" style="display: none;">
+            <label>Initial Payment (₹):</label>
+            <input type="number" id="initialPayment" placeholder="Enter initial payment">
+        </div>
+        
+        <label>Annual Interest Rate (%):</label>
+        <input type="number" id="interestRate" placeholder="Enter interest rate" required>
+        
+        <label>Loan Tenure:</label>
+        <input type="number" id="loanTenure" placeholder="Enter tenure" required>
+        
+        <label>Tenure Type:</label>
+        <select id="tenureType">
+            <option value="months">Months</option>
+            <option value="years">Years</option>
+        </select>
+        
+        <button onclick="calculateEMI()">Calculate EMI</button>
+        
+        <p id="result"></p>
+    </div>
+    
+    <script>
+        function toggleInitialPayment() {
+            let option = document.getElementById('initialPaymentOption').value;
+            let initialPaymentDiv = document.getElementById('initialPaymentDiv');
+            
+            if (option === 'yes') {
+                initialPaymentDiv.style.display = 'block';
+            } else {
+                initialPaymentDiv.style.display = 'none';
+            }
+        }
+
+        function calculateEMI() {
+            let loanAmount = parseFloat(document.getElementById('loanAmount').value);
+            let initialPaymentOption = document.getElementById('initialPaymentOption').value;
+            let initialPayment = initialPaymentOption === 'yes' ? parseFloat(document.getElementById('initialPayment').value) || 0 : 0;
+            let interestRate = parseFloat(document.getElementById('interestRate').value) / 100 / 12;
+            let loanTenure = parseInt(document.getElementById('loanTenure').value);
+            let tenureType = document.getElementById('tenureType').value;
+            
+            if (tenureType === 'years') {
+                loanTenure *= 12; // Convert years to months
+            }
+            
+            let loanAmountAfterInitial = loanAmount - initialPayment;
+            
+            if (isNaN(loanAmountAfterInitial) || isNaN(interestRate) || isNaN(loanTenure) || loanAmountAfterInitial <= 0 || interestRate <= 0 || loanTenure <= 0) {
+                document.getElementById('result').textContent = 'Please enter valid values.';
+                return;
+            }
+            
+            let emi = (loanAmountAfterInitial * interestRate * Math.pow(1 + interestRate, loanTenure)) / 
+                      (Math.pow(1 + interestRate, loanTenure) - 1);
+            let totalPayment = emi * loanTenure;
+            let totalInterest = totalPayment - loanAmountAfterInitial;
+            
+            document.getElementById('result').innerHTML = `
+                <strong>Loan Amount After Initial Payment:</strong> ₹${loanAmountAfterInitial.toFixed(2)}<br>
+                <strong>Monthly EMI:</strong> ₹${emi.toFixed(2)}<br>
+                <strong>Total Interest Payable:</strong> ₹${totalInterest.toFixed(2)}<br>
+                <strong>Total Payment:</strong> ₹${totalPayment.toFixed(2)}
+            `;
+        }
+    </script>
+</body>
+</html>
